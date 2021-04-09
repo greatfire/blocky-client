@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Client: Export Runnable Jar">
+  <target name="create_run_jar">
+    <echo message="Creating runnable jar" />
+    <jar destfile="export/client.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Main-Class"
+          value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader" />
+        <attribute name="Rsrc-Main-Class" value="com.greatfire.client.main.MainClient" />
+        <attribute name="Class-Path" value="." />
+        <attribute name="Rsrc-Class-Path"
+          value="./ commons-logging-1.1.1.jar json-lib-2.4-jdk15.jar commons-lang-2.6.jar ezmorph-1.0.6.jar commons-collections-3.1.jar commons-beanutils-core-1.8.3.jar junit-4.6.jar minlog-1.2.jar asm-3.3.1.jar reflectasm-1.01.jar dnsjava-2.1.3.jar kryonet-2.18-all.jar commons-validator-1.4.0.jar" />
+      </manifest>
+      <fileset dir="bin" />
+
+      <zipfileset src="export/jar-in-jar-loader.zip" />
+      <zipfileset dir="lib" includes="*.jar" />
+    </jar>
+  </target>
+
+  <target name="create_run_jar_mini" depends="create_run_jar">
+    <echo>Creating (Proguard) mini jar</echo>
+    <delete file="export/client_mini.jar"></delete>
+    <taskdef resource="proguard/ant/task.properties" classpath="export/proguard.jar" />
+    <proguard>
+      -dontoptimize
+
+      -libraryjars
+      "${java.home}/lib/rt.jar"
+
+      -libraryjars
+      "lib/commons-beanutils-core-1.8.3.jar"
+      -libraryjars
+      "lib/kryonet-2.18-all.jar"
+      -libraryjars
+      "lib/dnsjava-2.1.3.jar"
+      -libraryjars
+      "lib/commons-validator-1.4.0.jar"
+      -libraryjars
+      "lib/commons-lang-2.6.jar"
+      -libraryjars
+      "lib/commons-logging-1.1.1.jar"
+      -libraryjars "lib/ezmorph-1.0.6.jar"
+      -libraryjars "lib/json-lib-2.4-jdk15.jar"
+
+      -keep class
+      com.greatfire.client.main.MainClient { public static void
+      main(java.lang.String[]); }
+
+      -keep class org.eclipse.** { *; }
+
+      -injars
+      "export/client.jar"
+      -outjars "export/client_mini.jar"
+    </proguard>
+  </target>
+</project>
